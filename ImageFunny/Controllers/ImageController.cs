@@ -23,7 +23,11 @@ namespace ImageFunny.Controllers
         [HttpGet]
         public async Task<IActionResult> Image()
         {
-            Stream outStream = await _imageService.GenerateImage(HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString());
+            string ip = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            if (HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out var val)){
+                ip = val.Last();
+            }
+            Stream outStream = await _imageService.GenerateImage(ip);
             return new FileStreamResult(outStream,"image/jpeg");
         }
 
